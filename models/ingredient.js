@@ -3,7 +3,7 @@ const Ingredient = mongoose.model('Ingredient', {
     name: String,
     description: String,
     isAlcohol: Boolean,
-    image: Buffer
+    imagePath: String
 });
 
 module.exports = { Ingredient };

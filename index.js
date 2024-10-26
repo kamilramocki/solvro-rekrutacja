@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+const { ingredientRouter } = require('./endpoints/ingredient');
+
 const app = express();
 
 app.use(bodyParser.json({limit: '10mb'}));
@@ -16,6 +18,8 @@ app.use((req, res, next) => {
     res.set('Access-Control-Allow-Method', 'GET,POST,PUT');
     next();
 });
+
+app.use('/ingredient', ingredientRouter);
 
 const start = async () => {
     console.log('Connecting to database...');

@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const { ingredientRouter } = require('./endpoints/ingredient');
+const { cocktailRouter } = require('./endpoints/cocktail');
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/ingredient', ingredientRouter);
+app.use('/cocktail', cocktailRouter);
 
 const start = async () => {
     console.log('Connecting to database...');

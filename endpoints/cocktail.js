@@ -3,7 +3,7 @@ const { Cocktail } = require('../models/cocktail');
 const { Ingredient } = require('../models/ingredient');
 const cocktailRouter = express.Router();
 
-cocktailRouter.post('/add', async (req, res) => {
+cocktailRouter.post('/', async (req, res) => {
     try {
         const { name, category, instruction, ingredients } = req.body;
 
@@ -27,7 +27,49 @@ cocktailRouter.post('/add', async (req, res) => {
     }
 });
 
-cocktailRouter.post('/edit/:_id', async (req, res) => {
+cocktailRouter.get('/', async (req, res) => {
+    try {
+        const { cocktailName, ingredientName } = req.query; // Odczytujemy oba parametry
+
+        // Tworzymy filtr
+        let filter = {
+            $or: [] // Używamy operatora $or do łączenia warunków
+        };
+
+        // Jeśli podano nazwę koktajlu
+        if (cocktailName) {
+            filter.$or.push({ name: { $regex: cocktailName, $options: 'i' } }); // Wyszukiwanie po nazwie koktajlu
+        }
+
+        // Jeśli podano nazwę składnika
+        if (ingredientName) {
+            // Wyszukiwanie składników
+            filter.$or.push({ ingredients: { $elemMatch: { ingredient: { $regex: ingredientName, $options: 'i' } } } });
+        }
+
+        const cocktails = await Cocktail.find(filter).populate('ingredients.ingredient');
+        res.json(cocktails);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+cocktailRouter.get('/:_id', async (req, res) => {
+    try {
+        const { _id } = req.params;
+
+        const cocktail = await Cocktail.findOne({ _id }).populate('ingredients.ingredient');
+        if (!cocktail) {
+            return res.status(404).json({ message: 'Cocktail not found' });
+        }
+
+        res.json(cocktail);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+cocktailRouter.patch('/:_id', async (req, res) => {
     try {
         const { _id } = req.params;
         const { name, category, instruction, ingredients } = req.body;
@@ -57,22 +99,7 @@ cocktailRouter.post('/edit/:_id', async (req, res) => {
     }
 });
 
-cocktailRouter.get('/search/:_id', async (req, res) => {
-    try {
-        const { _id } = req.params;
-
-        const cocktail = await Cocktail.findOne({ _id }).populate('ingredients.ingredient');
-        if (!cocktail) {
-            return res.status(404).json({ message: 'Cocktail not found' });
-        }
-
-        res.json(cocktail);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-cocktailRouter.get('/delete/:_id', async (req, res) => {
+cocktailRouter.delete('/:_id', async (req, res) => {
     try {
         const { _id } = req.params;
 

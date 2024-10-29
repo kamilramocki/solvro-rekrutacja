@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-ingredientRouter.post('/add', upload.single('image'), async (req, res) => {
+ingredientRouter.post('/', upload.single('image'), async (req, res) => {
     try {
         const { name, description, isAlcohol } = req.body;
         const imagePath = req.file ? `uploads/${req.file.filename}` : null;
@@ -35,7 +35,49 @@ ingredientRouter.post('/add', upload.single('image'), async (req, res) => {
     }
 });
 
-ingredientRouter.post('/edit/:_id', upload.single('image'), async (req, res) => {
+ingredientRouter.get('/', async (req, res) => {
+    try {
+        const { name, isAlcohol, sort, order } = req.query;
+
+        // Budowanie filtru
+        const filter = {};
+        if (name) filter.name = { $regex: name, $options: 'i' }; // Filtrowanie przez nazwę (case insensitive)
+        if (isAlcohol !== undefined) filter.isAlcohol = isAlcohol === 'true'; // Filtrowanie przez alkohol
+
+        // Ustalanie opcji sortowania
+        const options = {};
+        if (sort) options.sort = { [sort]: order === 'desc' ? -1 : 1 }; // Domyślne sortowanie rosnąco
+
+        const ingredients = await Ingredient.find(filter, null, options);
+        res.json(ingredients);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+ingredientRouter.get('/:_id', async (req, res) => {
+    try {
+        const { _id } = req.params;
+        const ingredient = await Ingredient.findOne({ _id });
+
+        if (!ingredient) {
+            return res.status(404).json({ message: 'Ingredient not found' });
+        }
+
+        const response = {
+            name: ingredient.name,
+            description: ingredient.description,
+            isAlcohol: ingredient.isAlcohol,
+            imagePath: ingredient.imagePath ? `/uploads/${path.basename(ingredient.imagePath)}` : null
+        };
+
+        res.json(response);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+ingredientRouter.patch('/:_id', upload.single('image'), async (req, res) => {
     try {
         const { _id } = req.params;
         const { name, description, isAlcohol } = req.body;
@@ -67,29 +109,7 @@ ingredientRouter.post('/edit/:_id', upload.single('image'), async (req, res) => 
     }
 });
 
-ingredientRouter.get('/search/:_id', async (req, res) => {
-    try {
-        const { _id } = req.params;
-        const ingredient = await Ingredient.findOne({ _id });
-
-        if (!ingredient) {
-            return res.status(404).json({ message: 'Ingredient not found' });
-        }
-
-        const response = {
-            name: ingredient.name,
-            description: ingredient.description,
-            isAlcohol: ingredient.isAlcohol,
-            imagePath: ingredient.imagePath ? `/uploads/${path.basename(ingredient.imagePath)}` : null
-        };
-
-        res.json(response);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-ingredientRouter.get('/delete/:_id', async (req, res) => {
+ingredientRouter.delete('/:_id', async (req, res) => {
     try {
         const { _id } = req.params;
 

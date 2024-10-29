@@ -8,8 +8,8 @@ cocktailRouter.post('/', async (req, res) => {
         const { name, category, instruction, ingredients } = req.body;
 
         for (const item of ingredients) {
-            const ingredientExists = await Ingredient.findById(item.ingredient);
-            if (!ingredientExists) {
+            const ingredient = await Ingredient.findById(item.ingredient);
+            if (!ingredient) {
                 return res.status(400).json({ message: `Ingredient with ID ${item.ingredient} not found` });
             }
         }
@@ -21,7 +21,7 @@ cocktailRouter.post('/', async (req, res) => {
             ingredients
         });
 
-        res.json({ cocktail });
+        res.json( cocktail );
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -93,7 +93,7 @@ cocktailRouter.patch('/:_id', async (req, res) => {
 
         await cocktail.save();
 
-        res.json({ cocktail });
+        res.json( cocktail );
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -110,7 +110,7 @@ cocktailRouter.delete('/:_id', async (req, res) => {
 
         await Cocktail.deleteOne({ _id });
 
-        res.json({ message: 'Cocktail deleted successfully' });
+        res.json( cocktail );
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 const Cocktail = mongoose.model('Cocktail', {
     name: String,
     category: String,

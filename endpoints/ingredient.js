@@ -29,7 +29,7 @@ ingredientRouter.post('/', upload.single('image'), async (req, res) => {
             name, description, isAlcohol, imagePath
         });
 
-        res.json({ ingredient });
+        res.json(ingredient);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -103,7 +103,7 @@ ingredientRouter.patch('/:_id', upload.single('image'), async (req, res) => {
 
         await ingredient.save();
 
-        res.json({ ingredient });
+        res.json(ingredient);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -127,7 +127,7 @@ ingredientRouter.delete('/:_id', async (req, res) => {
 
         await Ingredient.deleteOne({ _id });
 
-        res.json({ message: 'Ingredient deleted successfully' });
+        res.json( ingredient );
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

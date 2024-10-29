@@ -1,20 +1,9 @@
 const express = require('express');
-const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const { Ingredient } = require('../models/ingredient');
+const { upload } = require('../middleware/uploadFile');
 const ingredientRouter = express.Router();
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        const { name } = req.body;
-        cb(null, `${name}.png`.replaceAll(" ", "_"));
-    }
-});
-const upload = multer({ storage: storage });
 
 ingredientRouter.post('/', upload.single('image'), async (req, res) => {
     try {

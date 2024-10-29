@@ -1,24 +1,17 @@
 const express = require('express');
 const { Cocktail } = require('../models/cocktail');
 const { Ingredient } = require('../models/ingredient');
+import { checkIfIngredientExists } from '../middleware/checkIfIngredientExists';
 const cocktailRouter = express.Router();
 
 cocktailRouter.post('/', async (req, res) => {
     try {
         const { name, category, instruction, ingredients } = req.body;
 
-        for (const item of ingredients) {
-            const ingredient = await Ingredient.findById(item.ingredient);
-            if (!ingredient) {
-                return res.status(400).json({ message: `Ingredient with ID ${item.ingredient} not found` });
-            }
-        }
+        await checkIfIngredientExists(ingredients);
 
         const cocktail = await Cocktail.create({
-            name,
-            category,
-            instruction,
-            ingredients
+            name, category, instruction, ingredients
         });
 
         res.json( cocktail );

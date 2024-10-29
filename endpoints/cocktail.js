@@ -1,20 +1,20 @@
 const express = require('express');
 const { Cocktail } = require('../models/cocktail');
-const { Ingredient } = require('../models/ingredient');
-import { checkIfIngredientExists } from '../middleware/checkIfIngredientExists';
+const validateIngredients = require('../middleware/validateIngredients');
 const cocktailRouter = express.Router();
 
-cocktailRouter.post('/', async (req, res) => {
+cocktailRouter.post('/', validateIngredients, async (req, res) => {
     try {
         const { name, category, instruction, ingredients } = req.body;
 
-        await checkIfIngredientExists(ingredients);
-
         const cocktail = await Cocktail.create({
-            name, category, instruction, ingredients
+            name,
+            category,
+            instruction,
+            ingredients
         });
 
-        res.json( cocktail );
+        res.json(cocktail);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

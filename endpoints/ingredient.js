@@ -3,12 +3,13 @@ const fs = require('fs');
 const path = require('path');
 const { Ingredient } = require('../models/ingredient');
 const { upload } = require('../middleware/uploadFile');
+const { createImagePath } = require('../middleware/createImagePath');
 const ingredientRouter = express.Router();
 
 ingredientRouter.post('/', upload.single('image'), async (req, res) => {
     try {
         const { name, description, isAlcohol } = req.body;
-        const imagePath = req.file ? `uploads/${req.file.filename}` : null;
+        const imagePath = req.file ? createImagePath(name) : null;
 
         if (!imagePath) {
             return res.status(400).json({ message: 'No image file provided' });
@@ -57,7 +58,7 @@ ingredientRouter.get('/:_id', async (req, res) => {
             name: ingredient.name,
             description: ingredient.description,
             isAlcohol: ingredient.isAlcohol,
-            imagePath: ingredient.imagePath ? `/uploads/${path.basename(ingredient.imagePath)}` : null
+            imagePath: ingredient.imagePath ? createImagePath(name) : null
         };
 
         res.json(response);
@@ -81,13 +82,14 @@ ingredientRouter.patch('/:_id', upload.single('image'), async (req, res) => {
         ingredient.isAlcohol = isAlcohol !== undefined ? isAlcohol : ingredient.isAlcohol;
 
         if (req.file) {
-            if (ingredient.imagePath) {
-                const oldImagePath = path.join(__dirname, '..', ingredient.imagePath);
+            const oldImagePath = ingredient.imagePath ? path.join(__dirname, '..', ingredient.imagePath) : null;
+            ingredient.imagePath = createImagePath(name);
+
+            if (oldImagePath) {
                 fs.unlink(oldImagePath, (err) => {
                     if (err) console.error('Failed to delete old image:', err);
                 });
             }
-            ingredient.imagePath = `uploads/${req.file.filename}`;
         }
 
         await ingredient.save();

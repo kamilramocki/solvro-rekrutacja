@@ -1,6 +1,7 @@
 const express = require('express');
 const { Cocktail } = require('../models/cocktail');
 const validateIngredients = require('../middleware/validateIngredients');
+const { createImagePath } = require('../middleware/createImagePath');
 const cocktailRouter = express.Router();
 
 cocktailRouter.post('/', validateIngredients, async (req, res) => {
